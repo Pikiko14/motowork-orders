@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { Utils } from "../utils/utils";
+import { PaymentFactory } from "./payments/payment.factory";
 import { ResponseHandler } from "../utils/responseHandler";
 import { OrderInterface } from "../interfaces/orders.interface";
 import OrdersRepository from "../repositories/orders.repository";
@@ -23,6 +23,10 @@ export class OrdersService extends OrdersRepository {
     try {
       // validate file
       const order = (await this.create(body)) as OrderInterface;
+
+      // init payment process
+      const paymentGateway = PaymentFactory.createPaymentGateway('mercadopago');
+      paymentGateway.processPayment(order);
 
       // return response
       return ResponseHandler.successResponse(

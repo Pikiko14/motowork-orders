@@ -14,7 +14,6 @@ const hostValidator = async (
     ];
 
     const referer = req.get("Referer");
-    console.log(referer);
 
     // Verificar si el origen está permitido
     if (!referer || !availableOrigins.includes(referer)) {

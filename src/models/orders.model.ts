@@ -1,6 +1,21 @@
 import { Schema, model } from "mongoose";
 import { OrderInterface } from "../interfaces/orders.interface";
 
+const VariantSchema = new Schema({
+  sku: {
+    type: String,
+    required: true,
+  },
+  attribute: {
+    type: String,
+    required: true,
+  },
+  image: {
+    type: String,
+    required: false,
+  }
+});
+
 const ItemSchema = new Schema({
   name: { type: String, required: true },
   reference: { type: String, required: true },
@@ -8,6 +23,14 @@ const ItemSchema = new Schema({
   purchasePrice: { type: Number, required: true },
   total: { type: Number, required: true },
   quantity: { type: Number, required: true },
+  variant: {
+    type: VariantSchema,
+    required: false,
+    default: null,
+  },
+  image: {
+    type: String, required: false
+  }
 });
 
 const ClientSchema = new Schema({
@@ -40,7 +63,7 @@ const OrderSchema = new Schema<OrderInterface>(
     serviceDate: { type: String, required: false },
     serviceTime: { type: String, required: false },
     client: { type: ClientSchema, required: true },
-    items: { type: [ItemSchema], required: true },
+    items: { type: [ItemSchema], required: false },
     vehicleDetails: { type: VehicleDetailsSchema, required: false },
     contact_type: {
       type: String,
