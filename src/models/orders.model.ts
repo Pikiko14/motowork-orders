@@ -13,7 +13,7 @@ const VariantSchema = new Schema({
   image: {
     type: String,
     required: false,
-  }
+  },
 });
 
 const ItemSchema = new Schema({
@@ -29,8 +29,9 @@ const ItemSchema = new Schema({
     default: null,
   },
   image: {
-    type: String, required: false
-  }
+    type: String,
+    required: false,
+  },
 });
 
 const ClientSchema = new Schema({
@@ -81,7 +82,10 @@ const OrderSchema = new Schema<OrderInterface>(
       required: true,
       default: "Pendiente",
     },
-    dni: { type: String, required: false },
+    payment_method: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,

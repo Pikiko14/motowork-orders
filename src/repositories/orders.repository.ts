@@ -99,6 +99,14 @@ class OrdersRepository {
   public async delete(id: string): Promise<OrderInterface | void | null> {
     return this.model.findByIdAndDelete(id);
   }
+
+  /**
+   * get by id
+   * @param id
+   */
+  public async findById(id: string): Promise<OrderInterface | null> {
+    return await this.model.findById(id);
+  }
 }
 
 export default OrdersRepository;

@@ -31,4 +31,26 @@ export class OrdersController {
       ResponseHandler.handleInternalError(res, error, error.message ?? error);
     }
   };
+
+  /**
+   * Init order payment
+   * @param req Express request
+   * @param res Express response
+   * @returns Promise<void>
+   */
+  initPayment = async (
+    req: Request,
+    res: Response
+  ): Promise<void | ResponseHandler> => {
+    try {
+      // get body
+      const body = matchedData(req);
+      const { id } = req.params;
+
+      // store order
+      return await this.service.initPayment(res, body, id);
+    } catch (error: any) {
+      ResponseHandler.handleInternalError(res, error, error.message ?? error);
+    }
+  };
 }

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import hostValidator from "../middlewares/hostValidator";
 import { OrdersController } from "../controllers/orders.controller";
-import { ordersCreationValidator } from "../validators/orders.validators";
+import { initPaymentValidator, ordersCreationValidator } from "../validators/orders.validators";
 
 // init router
 const router = Router();
@@ -17,6 +17,16 @@ router.post(
   hostValidator,
   ordersCreationValidator,
   controller.createOrders
+);
+
+/**
+ * Init orders payment
+ */
+router.post(
+  "/:id/init-payment",
+  hostValidator,
+  initPaymentValidator,
+  controller.initPayment
 );
 
 // export router

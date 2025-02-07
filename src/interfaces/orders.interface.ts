@@ -5,6 +5,9 @@ export interface Item {
   purchasePrice: number;
   total: number;
   quantity: number;
+  variant: any;
+  image: any;
+  _id?: any;
 }
 
 export interface Client {
@@ -42,4 +45,6 @@ export interface OrderInterface {
   createdAt?: Date;
   status: "Pendiente" | "Completado" | "Cancelado" | "Rechazado";
   dni?: string;
+  _id?: string;
+  payment_method?: string;
 }

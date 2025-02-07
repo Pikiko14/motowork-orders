@@ -5,9 +5,7 @@ import { OrderInterface } from "../interfaces/orders.interface";
 import OrdersRepository from "../repositories/orders.repository";
 
 export class OrdersService extends OrdersRepository {
-
-  constructor(
-  ) {
+  constructor() {
     super();
   }
 
@@ -18,21 +16,49 @@ export class OrdersService extends OrdersRepository {
    */
   public async createOrders(
     res: Response,
-    body: OrderInterface,
+    body: OrderInterface
   ): Promise<void | ResponseHandler> {
     try {
       // validate file
       const order = (await this.create(body)) as OrderInterface;
-
-      // init payment process
-      const paymentGateway = PaymentFactory.createPaymentGateway('mercadopago');
-      paymentGateway.processPayment(order);
 
       // return response
       return ResponseHandler.successResponse(
         res,
         order,
         "Orden creada correctamente."
+      );
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  public async initPayment(
+    res: Response,
+    body: any,
+    id: string
+  ): Promise<void | ResponseHandler> {
+    try {
+      // validate file
+      const order = await this.findOneByQuery({ _id: id }) as OrderInterface;
+
+      // init payment process
+      const paymentGateway = PaymentFactory.createPaymentGateway(body.payment_methods	 || 'mercadopago');
+      const preference = await paymentGateway.processPayment(order);
+
+      if (preference && body.payment_methods) {
+        order.payment_method = body.payment_methods;
+        await this.update(id, order)
+      }
+
+      // return response
+      return ResponseHandler.successResponse(
+        res,
+        {
+          order,
+          preference
+        },
+        "Proceso de pago inicializado correctamente."
       );
     } catch (error: any) {
       throw new Error(error.message);
