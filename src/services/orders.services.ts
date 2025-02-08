@@ -8,8 +8,8 @@ export class OrdersService extends OrdersRepository {
   statusAvailable: any = {
     approved: 'Pago Completado',
     pending: 'Pago en estado pendiente',
-    inprocess: 'En proceso de pago',
-    inmediation: 'En proceso de pago',
+    in_process: 'En proceso de pago',
+    in_mediation: 'En proceso de pago',
     rejected: 'Pago Rechazado',
     cancelled: 'Pago Cancelado',
     refunded: 'Devolución de Fondos',
@@ -125,6 +125,7 @@ export class OrdersService extends OrdersRepository {
       
       // validate order status
       const { external_reference, status, status_detail, money_release_status } = paymentData;
+      console.log(status, status_detail, money_release_status)
 
       // get order to update
       const order = await this.findById(external_reference as string);
