@@ -53,4 +53,25 @@ export class OrdersController {
       ResponseHandler.handleInternalError(res, error, error.message ?? error);
     }
   };
+
+   /**
+   * Show order
+   * @param req Express request
+   * @param res Express response
+   * @returns Promise<void>
+   */
+  showOrder = async (
+    req: Request,
+    res: Response
+  ) => {
+    try {
+      // get body
+      const { id } = req.params;
+
+      // store order
+      return await this.service.showOrder(res, id);
+    } catch (error: any) {
+      ResponseHandler.handleInternalError(res, error, error.message ?? error);
+    }
+  }
 }

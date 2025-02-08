@@ -42,11 +42,14 @@ export class MercadoPagoImplement implements PaymentGateway {
           }
         },
         back_urls: {
-          "success": `${configuration.get('APP_URL')}/orden-de-compra/${order._id}/success`,
-          "pending": `${configuration.get('APP_URL')}/orden-de-compra/${order._id}/pending`,
-          "failure": `${configuration.get('APP_URL')}/orden-de-compra/${order._id}/failure`,
+          "success": `${configuration.get('APP_URL')}/orden-de-compra/${order._id}/aprobada`,
+          "pending": `${configuration.get('APP_URL')}/orden-de-compra/${order._id}/pendiente`,
+          "failure": `${configuration.get('APP_URL')}/orden-de-compra/${order._id}/fallo`,
         },
-        external_reference: order._id
+        external_reference: order._id,
+        payment_methods: {
+          installments: 1,
+        }
       }
     })
 

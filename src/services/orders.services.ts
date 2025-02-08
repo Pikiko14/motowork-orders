@@ -33,6 +33,13 @@ export class OrdersService extends OrdersRepository {
     }
   }
 
+  /**
+   * Init payment process
+   * @param { Response } res
+   * @param body
+   * @param { string } id
+   * @returns
+   */
   public async initPayment(
     res: Response,
     body: any,
@@ -40,15 +47,17 @@ export class OrdersService extends OrdersRepository {
   ): Promise<void | ResponseHandler> {
     try {
       // validate file
-      const order = await this.findOneByQuery({ _id: id }) as OrderInterface;
+      const order = (await this.findOneByQuery({ _id: id })) as OrderInterface;
 
       // init payment process
-      const paymentGateway = PaymentFactory.createPaymentGateway(body.payment_methods	 || 'mercadopago');
+      const paymentGateway = PaymentFactory.createPaymentGateway(
+        body.payment_methods || "mercadopago"
+      );
       const preference = await paymentGateway.processPayment(order);
 
       if (preference && body.payment_methods) {
         order.payment_method = body.payment_methods;
-        await this.update(id, order)
+        await this.update(id, order);
       }
 
       // return response
@@ -56,9 +65,34 @@ export class OrdersService extends OrdersRepository {
         res,
         {
           order,
-          preference
+          preference,
         },
         "Proceso de pago inicializado correctamente."
+      );
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  /**
+   * Show order data
+   * @param { Response } res 
+   * @param { string } id 
+   * @returns 
+   */
+  public async showOrder(
+    res: Response,
+    id: string
+  ): Promise<void | ResponseHandler> {
+    try {
+      // get order
+      const order = await this.findById(id);
+      
+      // return response
+      return ResponseHandler.successResponse(
+        res,
+        order,
+        "Datos de la orden."
       );
     } catch (error: any) {
       throw new Error(error.message);

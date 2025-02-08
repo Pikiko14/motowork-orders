@@ -102,7 +102,15 @@ const ordersCreationValidator = [
     ),
   check("conveyor")
     .optional()
-    .isIn(["servientrega", "inter_rapidisimo", "coordinadora", "envia", "tcc", 'pick_on_store', null])
+    .isIn([
+      "servientrega",
+      "inter_rapidisimo",
+      "coordinadora",
+      "envia",
+      "tcc",
+      "pick_on_store",
+      null,
+    ])
     .withMessage(
       "La trasnportadora debe ser una de las siguientes opciones: servientrega, inter_rapidisimo, coordinadora, envia o tcc"
     ),
@@ -138,4 +146,20 @@ const initPaymentValidator = [
     handlerValidator(req, res, next),
 ];
 
-export { ordersCreationValidator, initPaymentValidator };
+const orderIdValidator = [
+  check("id")
+    .notEmpty()
+    .withMessage("Debe existier el id de la orden")
+    .isMongoId()
+    .withMessage("Debe ser un id correcto")
+    .custom(async (val: string) => {
+      const order = await repository.findById(val);
+      if (!order) {
+        throw new Error(`No existe una orden con este id: ${val}}`);
+      }
+    }),
+  (req: Request, res: Response, next: NextFunction) =>
+    handlerValidator(req, res, next),
+];
+
+export { ordersCreationValidator, initPaymentValidator, orderIdValidator };
