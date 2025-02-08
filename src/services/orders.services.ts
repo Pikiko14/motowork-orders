@@ -125,7 +125,6 @@ export class OrdersService extends OrdersRepository {
       
       // validate order status
       const { external_reference, status, status_detail, money_release_status } = paymentData;
-      console.log(status, status_detail, money_release_status)
 
       // get order to update
       const order = await this.findById(external_reference as string);
@@ -145,7 +144,6 @@ export class OrdersService extends OrdersRepository {
         }
       }
       if (order && status) {
-        
         order.status = this.statusAvailable[status];
         await this.update(external_reference, order);
       }
