@@ -94,6 +94,11 @@ const OrderSchema = new Schema<OrderInterface>(
       type: String,
       required: false,
     },
+    payment_data: {
+      type: Schema.Types.Mixed,
+      required: false,
+      default: {},
+    },
   },
   {
     timestamps: true,

@@ -132,6 +132,16 @@ export class OrdersService extends OrdersRepository {
       // cambiamos el estado de la orden.
       if (order && status && status_detail === 'accredited' && money_release_status === 'released') {
         order.status = this.statusAvailable[status];
+        if (!order.payment_data.date_approved) {
+          order.payment_data = {
+            date_approved: paymentData.date_approved || null,
+            date_created: paymentData.date_created || null,
+            payment_method: paymentData.payment_method || null,
+            status: paymentData.status || null,
+            status_detail: paymentData.status || null,
+            card: paymentData.card || null
+          }
+        }
         await this.update(external_reference, order);
       }
       

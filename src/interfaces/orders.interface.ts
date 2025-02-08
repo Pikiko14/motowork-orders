@@ -55,4 +55,5 @@ export interface OrderInterface {
   dni?: string;
   _id?: string;
   payment_method?: string;
+  payment_data?: any;
 }
