@@ -102,7 +102,7 @@ const ordersCreationValidator = [
     ),
   check("conveyor")
     .optional()
-    .isIn(["servientrega", "inter_rapidisimo", "coordinadora", "envia", "tcc"])
+    .isIn(["servientrega", "inter_rapidisimo", "coordinadora", "envia", "tcc", 'pick_on_store', null])
     .withMessage(
       "La trasnportadora debe ser una de las siguientes opciones: servientrega, inter_rapidisimo, coordinadora, envia o tcc"
     ),
