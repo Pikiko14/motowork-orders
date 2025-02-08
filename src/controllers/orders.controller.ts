@@ -47,7 +47,7 @@ export class OrdersController {
       const body = matchedData(req);
       const { id } = req.params;
 
-      // store order
+      // init pay,ent order
       return await this.service.initPayment(res, body, id);
     } catch (error: any) {
       ResponseHandler.handleInternalError(res, error, error.message ?? error);
@@ -68,8 +68,30 @@ export class OrdersController {
       // get body
       const { id } = req.params;
 
-      // store order
+      // get order
       return await this.service.showOrder(res, id);
+    } catch (error: any) {
+      ResponseHandler.handleInternalError(res, error, error.message ?? error);
+    }
+  }
+
+  /**
+   * Validamos el pago desde el webhook
+   * @param req 
+   * @param res 
+   * @returns 
+   */
+  validatePayment = async(req: Request, res: Response) => {
+    try {
+      // get body
+      const { query } = req;
+
+      if (query['data.id'] && query.type === "payment") {
+        const id = query['data.id'];
+        return await this.service.validatePayment(res, id);
+      }
+
+      return res.sendStatus(204);
     } catch (error: any) {
       ResponseHandler.handleInternalError(res, error, error.message ?? error);
     }

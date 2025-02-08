@@ -1,7 +1,8 @@
-import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 import configuration from "../../../../configuration/configuration";
 import { PaymentGateway } from "../../../interfaces/payment.interface";
 import { Item, OrderInterface } from "../../../interfaces/orders.interface";
+import { PaymentResponse } from 'mercadopago/dist/clients/payment/commonTypes';
 import { PreferenceResponse } from 'mercadopago/dist/clients/preference/commonTypes';
 
 // Implementación para MercadoPago
@@ -16,6 +17,11 @@ export class MercadoPagoImplement implements PaymentGateway {
     this.preference = new Preference(this.client);
   }
 
+  /**
+   * Create payment instance on mercadopago
+   * @param order 
+   * @returns 
+   */
   async processPayment(order: OrderInterface): Promise<PreferenceResponse> {
     const items = order.items.map((item: Item) => {
       return {
@@ -49,10 +55,33 @@ export class MercadoPagoImplement implements PaymentGateway {
         external_reference: order._id,
         payment_methods: {
           installments: 1,
-        }
+        },
+        notification_url: configuration.get('MERCADO_PAGO_URL'),
       }
     })
 
     return createPreference;
+  }
+  
+  /**
+   * Get payment data
+   * @param paymentId 
+   */
+  async getPaymentData(paymentId: any): Promise<PaymentResponse> {
+    try {
+      const payment = new Payment(this.client);
+
+      const paymentData = await payment.get({
+        id: paymentId,
+      });
+
+      if (paymentData.id) {
+        return paymentData;
+      }
+      return paymentData;
+      
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
   }
 }

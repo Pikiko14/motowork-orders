@@ -78,7 +78,15 @@ const OrderSchema = new Schema<OrderInterface>(
     subtotal: { type: Number, required: false },
     status: {
       type: String,
-      enum: ["Pendiente", "Completado", "Cancelado", "Rechazado"],
+      enum: [
+        "Pendiente",
+        "Pago Completado",
+        "Pago Cancelado",
+        "Pago Rechazado",
+        "Pago en proceso",
+        "Pago en estado pendiente",
+        "Devolución de Fondos",
+      ],
       required: true,
       default: "Pendiente",
     },

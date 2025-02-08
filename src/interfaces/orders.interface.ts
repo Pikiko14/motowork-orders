@@ -43,7 +43,15 @@ export interface OrderInterface {
   total?: number;
   subtotal?: number;
   createdAt?: Date;
-  status: "Pendiente" | "Completado" | "Cancelado" | "Rechazado";
+  status:
+    | "Pendiente"
+    | "Pago Completado"
+    | "Pago Cancelado"
+    | "Pago Rechazado"
+    | "En proceso de pago"
+    | "Pago en estado pendiente"
+    | "Pago en proceso"
+    | "Devolución de Fondos";
   dni?: string;
   _id?: string;
   payment_method?: string;

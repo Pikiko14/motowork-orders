@@ -5,6 +5,17 @@ import { OrderInterface } from "../interfaces/orders.interface";
 import OrdersRepository from "../repositories/orders.repository";
 
 export class OrdersService extends OrdersRepository {
+  statusAvailable: any = {
+    approved: 'Pago Completado',
+    pending: 'Pago en estado pendiente',
+    inprocess: 'En proceso de pago',
+    inmediation: 'En proceso de pago',
+    rejected: 'Pago Rechazado',
+    cancelled: 'Pago Cancelado',
+    refunded: 'Devolución de Fondos',
+    chargedback: 'Devolución de Fondos'
+  }
+
   constructor() {
     super();
   }
@@ -57,6 +68,7 @@ export class OrdersService extends OrdersRepository {
 
       if (preference && body.payment_methods) {
         order.payment_method = body.payment_methods;
+        order.status = 'Pendiente';
         await this.update(id, order);
       }
 
@@ -93,6 +105,41 @@ export class OrdersService extends OrdersRepository {
         res,
         order,
         "Datos de la orden."
+      );
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+  
+  /**
+   * Validate payment
+   * @param { Response } res 
+   * @param { string } paymentId 
+   * @returns 
+   */
+  public async validatePayment(res: Response, paymentId: any) {
+    try {
+      // get order
+      const paymentGateway = PaymentFactory.createPaymentGateway('mercadopago');
+      const paymentData = await paymentGateway.getPaymentData(paymentId);
+      
+      // validate order status
+      const { external_reference, status, status_detail, money_release_status } = paymentData;
+
+      // get order to update
+      const order = await this.findById(external_reference as string);
+
+      // cambiamos el estado de la orden.
+      if (order && status && status_detail === 'accredited' && money_release_status === 'released') {
+        order.status = this.statusAvailable[status];
+        await this.update(external_reference, order);
+      }
+      
+      // return response
+      return ResponseHandler.successResponse(
+        res,
+        paymentId,
+        "Se ha validado el pago en la orden."
       );
     } catch (error: any) {
       throw new Error(error.message);

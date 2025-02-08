@@ -39,5 +39,13 @@ router.get(
   controller.showOrder
 );
 
+/**
+ * Payment web hook
+ */
+router.post(
+  "/payment-webhook",
+  controller.validatePayment
+);
+
 // export router
 export { router };

@@ -57,7 +57,7 @@ const ordersCreationValidator = [
     .withMessage("El marketing consentimiento debe ser booleano"),
   check("client.type_of_housing")
     .optional()
-    .isLength({ min: 1, max: 30 })
+    .isLength({ min: 0, max: 30 })
     .withMessage("El tipo de casa debe tener entre 1 y máximo 30 caracteres."),
   check("client.state")
     .optional()
