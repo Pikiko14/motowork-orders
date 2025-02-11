@@ -3,6 +3,7 @@ import { PaymentFactory } from "./payments/payment.factory";
 import { ResponseHandler } from "../utils/responseHandler";
 import { OrderInterface } from "../interfaces/orders.interface";
 import OrdersRepository from "../repositories/orders.repository";
+import { PaginationInterface } from "../interfaces/req-ext.interface";
 
 export class OrdersService extends OrdersRepository {
   statusAvailable: any = {
@@ -153,6 +154,58 @@ export class OrdersService extends OrdersRepository {
         res,
         paymentId,
         "Se ha validado el pago en la orden."
+      );
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  /**
+   * List order
+   * @param { Response } Response
+   * @param { PaginationInterface } query
+   */
+  public async listOrders(res: Response, query: PaginationInterface) {
+    try {
+      // validamos la data de la paginacion
+      const page: number = (query.page as number) || 1;
+      const perPage: number = (query.perPage as number) || 7;
+      const skip = (page - 1) * perPage;
+
+      // Iniciar busqueda
+      let queryObj: any = {};
+      if (query.search) {
+        const searchRegex = new RegExp(query.search as string, "i");
+        queryObj = {
+          $or: [{ name: searchRegex }],
+        };
+      }
+
+      // type products
+      if (query.type) {
+        queryObj.type = query.type;
+      }
+
+      // do query
+      const fields = query.fields ? query.fields.split(",") : [];
+      const products = await this.paginate(
+        queryObj,
+        skip,
+        perPage,
+        query.sortBy,
+        query.order,
+        fields
+      );
+
+      // return data
+      return ResponseHandler.successResponse(
+        res,
+        {
+          brands: products.data,
+          totalItems: products.totalItems,
+          totalPages: products.totalPages,
+        },
+        "Listado de products."
       );
     } catch (error: any) {
       throw new Error(error.message);

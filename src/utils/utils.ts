@@ -1,8 +1,9 @@
 import fs from "fs";
 import path from "path";
+import moment from "moment";
 import * as crypto from "crypto";
 import * as bcrypt from "bcryptjs";
-import moment from "moment";
+import { verify } from "jsonwebtoken";
 import configuration from "../../configuration/configuration";
 
 class Utils {
@@ -15,6 +16,15 @@ class Utils {
     this.salt = 10;
     this.path = `${process.cwd()}/uploads/`;
   }
+
+   /**
+   * verify session token
+   * @param {string} token
+   */
+   verifyToken = async (token: string) => {
+    const isOk = await verify(token, this.JWT_SECRET);
+    return isOk;
+  };
 
   /**
    * split file by delimiter

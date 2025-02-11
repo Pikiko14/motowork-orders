@@ -2,6 +2,8 @@ import { Router } from "express";
 import hostValidator from "../middlewares/hostValidator";
 import { OrdersController } from "../controllers/orders.controller";
 import { initPaymentValidator, orderIdValidator, ordersCreationValidator } from "../validators/orders.validators";
+import sessionCheck from "../middlewares/sessions.middleware";
+import perMissionMiddleware from "../middlewares/permission.middleware";
 
 // init router
 const router = Router();
@@ -45,6 +47,17 @@ router.get(
 router.post(
   "/payment-webhook",
   controller.validatePayment
+);
+
+/**
+ * Show order
+ */
+router.get(
+  "/",
+  hostValidator,
+  sessionCheck,
+  perMissionMiddleware('list-orders'),
+  controller.listOrders
 );
 
 // export router

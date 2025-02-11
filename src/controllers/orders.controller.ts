@@ -3,6 +3,7 @@ import { matchedData } from "express-validator";
 import { ResponseHandler } from "../utils/responseHandler";
 import { OrdersService } from "../services/orders.services";
 import { OrderInterface } from "../interfaces/orders.interface";
+import { PaginationInterface } from "../interfaces/req-ext.interface";
 
 export class OrdersController {
   public service;
@@ -92,6 +93,27 @@ export class OrdersController {
       }
 
       return res.sendStatus(204);
+    } catch (error: any) {
+      ResponseHandler.handleInternalError(res, error, error.message ?? error);
+    }
+  }
+
+  /**
+   * list orders
+   * @param req Express request
+   * @param res Express response
+   * @returns Promise<void>
+   */
+  listOrders = async (
+    req: Request,
+    res: Response
+  ) => {
+    try {
+      // get query params// get query
+      const query = matchedData(req) as PaginationInterface;
+
+      // get order
+      return await this.service.listOrders(res, query);
     } catch (error: any) {
       ResponseHandler.handleInternalError(res, error, error.message ?? error);
     }
