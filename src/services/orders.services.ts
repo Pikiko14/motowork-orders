@@ -201,7 +201,7 @@ export class OrdersService extends OrdersRepository {
       return ResponseHandler.successResponse(
         res,
         {
-          brands: products.data,
+          orders: products.data,
           totalItems: products.totalItems,
           totalPages: products.totalPages,
         },

@@ -4,6 +4,7 @@ import { OrdersController } from "../controllers/orders.controller";
 import { initPaymentValidator, orderIdValidator, ordersCreationValidator } from "../validators/orders.validators";
 import sessionCheck from "../middlewares/sessions.middleware";
 import perMissionMiddleware from "../middlewares/permission.middleware";
+import { PaginationValidator } from "../validators/request.validator";
 
 // init router
 const router = Router();
@@ -57,6 +58,7 @@ router.get(
   hostValidator,
   sessionCheck,
   perMissionMiddleware('list-orders'),
+  PaginationValidator,
   controller.listOrders
 );
 
