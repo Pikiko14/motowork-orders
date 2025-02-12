@@ -101,8 +101,22 @@ export class OrdersService extends OrdersRepository {
     id: string
   ): Promise<void | ResponseHandler> {
     try {
+      // validate order
+      const redisCache = RedisImplement.getInstance();
+      const cacheKey = `orders:${id}`;
+      const orderInCache = await redisCache.getItem(cacheKey);
+      if (orderInCache) {
+        return ResponseHandler.successResponse(
+          res,
+          orderInCache,
+          "Datos de la orden"
+        );
+      }
+
       // get order
       const order = await this.findById(id);
+
+      await redisCache.setItem(cacheKey, order, 300)
 
       // return response
       return ResponseHandler.successResponse(res, order, "Datos de la orden.");
