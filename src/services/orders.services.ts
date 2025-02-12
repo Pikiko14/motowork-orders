@@ -177,8 +177,31 @@ export class OrdersService extends OrdersRepository {
       if (query.search) {
         const searchRegex = new RegExp(query.search as string, "i");
         queryObj = {
-          $or: [{ name: searchRegex }],
-        };
+          $or: [
+            {
+              $expr: {
+                $regexMatch: {
+                  input: { $toString: "$_id" },
+                  regex: query.search,
+                  options: "i"
+                }
+              }
+            },
+            { "client.dni": searchRegex },
+            { "client.email": searchRegex },
+            { "client.lastName": searchRegex },
+            { "client.firstName": searchRegex },
+            {
+              $expr: {
+                $regexMatch: {
+                  input: { $concat: ["$client.firstName", " ", "$client.lastName"] },
+                  regex: query.search,
+                  options: "i"
+                }
+              }
+            },
+          ]
+        };        
       }
 
       // type products

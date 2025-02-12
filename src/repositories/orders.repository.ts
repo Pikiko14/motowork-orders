@@ -59,7 +59,7 @@ class OrdersRepository {
     try {
       // Parse sort order to ensure it is a number
 
-      const validSortFields = ["name", "createdAt"];
+      const validSortFields = ["total", "createdAt"];
       if (!validSortFields.includes(sortBy)) {
         throw new Error(
           `Invalid sort field. Allowed fields are: ${validSortFields.join(
