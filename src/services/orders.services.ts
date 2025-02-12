@@ -191,6 +191,7 @@ export class OrdersService extends OrdersRepository {
             { "client.email": searchRegex },
             { "client.lastName": searchRegex },
             { "client.firstName": searchRegex },
+            { "client.phone": searchRegex },
             {
               $expr: {
                 $regexMatch: {
