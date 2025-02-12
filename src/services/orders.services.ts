@@ -210,6 +210,18 @@ export class OrdersService extends OrdersRepository {
         queryObj.type = query.type;
       }
 
+      // validate filter
+      if (query.filter) {
+        const filter = JSON.parse(query.filter);
+        
+        // validamos si en filter vienen las fecha
+        if (filter.from || filter.to) {
+          queryObj.createdAt = {};
+          if (filter.from) queryObj.createdAt.$gte = new Date(filter.from);
+          if (filter.to) queryObj.createdAt.$lte = new Date(filter.to);
+        }
+      }
+
       // do query
       const fields = query.fields ? query.fields.split(",") : [];
       const products = await this.paginate(
