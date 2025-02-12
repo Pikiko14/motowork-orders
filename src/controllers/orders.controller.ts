@@ -55,16 +55,13 @@ export class OrdersController {
     }
   };
 
-   /**
+  /**
    * Show order
    * @param req Express request
    * @param res Express response
    * @returns Promise<void>
    */
-  showOrder = async (
-    req: Request,
-    res: Response
-  ) => {
+  showOrder = async (req: Request, res: Response) => {
     try {
       // get body
       const { id } = req.params;
@@ -74,21 +71,21 @@ export class OrdersController {
     } catch (error: any) {
       ResponseHandler.handleInternalError(res, error, error.message ?? error);
     }
-  }
+  };
 
   /**
    * Validamos el pago desde el webhook
-   * @param req 
-   * @param res 
-   * @returns 
+   * @param req
+   * @param res
+   * @returns
    */
-  validatePayment = async(req: Request, res: Response) => {
+  validatePayment = async (req: Request, res: Response) => {
     try {
       // get body
       const { query } = req;
 
-      if (query['data.id'] && query.type === "payment") {
-        const id = query['data.id'];
+      if (query["data.id"] && query.type === "payment") {
+        const id = query["data.id"];
         return await this.service.validatePayment(res, id);
       }
 
@@ -96,7 +93,7 @@ export class OrdersController {
     } catch (error: any) {
       ResponseHandler.handleInternalError(res, error, error.message ?? error);
     }
-  }
+  };
 
   /**
    * list orders
@@ -104,10 +101,7 @@ export class OrdersController {
    * @param res Express response
    * @returns Promise<void>
    */
-  listOrders = async (
-    req: Request,
-    res: Response
-  ) => {
+  listOrders = async (req: Request, res: Response) => {
     try {
       // get query params// get query
       const query = matchedData(req) as PaginationInterface;
@@ -117,5 +111,19 @@ export class OrdersController {
     } catch (error: any) {
       ResponseHandler.handleInternalError(res, error, error.message ?? error);
     }
-  }
+  };
+
+  /**
+   * Get count order
+   * @param req Express request
+   * @param res Express response
+   * @returns Promise<void>
+   */
+  countOrders = async (req: Request, res: Response) => {
+    try {
+      return await this.service.countOrders(res);
+    } catch (error: any) {
+      ResponseHandler.handleInternalError(res, error, error.message ?? error);
+    }
+  };
 }

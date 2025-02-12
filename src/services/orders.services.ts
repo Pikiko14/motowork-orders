@@ -235,4 +235,26 @@ export class OrdersService extends OrdersRepository {
       throw new Error(error.message);
     }
   }
+
+  /**
+   * Count order
+   * @param { Response } res 
+   * @param { string } paymentId 
+   * @returns 
+   */
+  public async countOrders(res: Response) {
+    try {
+      // get count
+      const count = await this.getCountOrders();
+      
+      // return response
+      return ResponseHandler.successResponse(
+        res,
+        count,
+        "Total de ordenes registradas."
+      );
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
 }

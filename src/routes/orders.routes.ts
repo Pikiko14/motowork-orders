@@ -62,5 +62,16 @@ router.get(
   controller.listOrders
 );
 
+/**
+ * Show order
+ */
+router.get(
+  "/get/count",
+  hostValidator,
+  sessionCheck,
+  perMissionMiddleware('list-orders'),
+  controller.countOrders
+);
+
 // export router
 export { router };
