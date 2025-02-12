@@ -107,6 +107,19 @@ class OrdersRepository {
   public async findById(id: string): Promise<OrderInterface | null> {
     return await this.model.findById(id);
   }
+
+  /**
+   * Get count order
+   */
+  public async getCountOrders(): Promise<any> {
+    const countOrder = await this.model.find({ type: 'Sales Order' }).count();
+    const countDrive = await this.model.find({ type: 'Test Drive Request' }).count()
+
+    return {
+      totalDrive: countDrive,
+      totalOrders: countOrder,
+    }
+  }
 }
 
 export default OrdersRepository;
