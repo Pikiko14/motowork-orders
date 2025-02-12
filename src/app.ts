@@ -76,8 +76,11 @@ export class Server {
    * Starts the server
    */
   private async startServer(): Promise<void> {
+    // init deb
     const db = new Database();
     await db.connect();
+
+    // set app listen
     this.app.listen(this.PORT, () =>
       console.log(`Running on port ${this.PORT}`)
     );

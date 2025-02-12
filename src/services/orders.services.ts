@@ -1,21 +1,21 @@
 import { Response } from "express";
-import { PaymentFactory } from "./payments/payment.factory";
+import { RedisImplement } from "./cache/redis.implement";
 import { ResponseHandler } from "../utils/responseHandler";
+import { PaymentFactory } from "./payments/payment.factory";
 import { OrderInterface } from "../interfaces/orders.interface";
 import OrdersRepository from "../repositories/orders.repository";
 import { PaginationInterface } from "../interfaces/req-ext.interface";
-
 export class OrdersService extends OrdersRepository {
   statusAvailable: any = {
-    approved: 'Pago Completado',
-    pending: 'Pago en estado pendiente',
-    in_process: 'En proceso de pago',
-    in_mediation: 'En proceso de pago',
-    rejected: 'Pago Rechazado',
-    cancelled: 'Pago Cancelado',
-    refunded: 'Devolución de Fondos',
-    chargedback: 'Devolución de Fondos'
-  }
+    approved: "Pago Completado",
+    pending: "Pago en estado pendiente",
+    in_process: "En proceso de pago",
+    in_mediation: "En proceso de pago",
+    rejected: "Pago Rechazado",
+    cancelled: "Pago Cancelado",
+    refunded: "Devolución de Fondos",
+    chargedback: "Devolución de Fondos",
+  };
 
   constructor() {
     super();
@@ -33,6 +33,9 @@ export class OrdersService extends OrdersRepository {
     try {
       // validate file
       const order = (await this.create(body)) as OrderInterface;
+
+      // delete keys from cache
+      await this.clearCacheInstances();
 
       // return response
       return ResponseHandler.successResponse(
@@ -69,7 +72,7 @@ export class OrdersService extends OrdersRepository {
 
       if (preference && body.payment_methods) {
         order.payment_method = body.payment_methods;
-        order.status = 'Pendiente';
+        order.status = "Pendiente";
         await this.update(id, order);
       }
 
@@ -89,9 +92,9 @@ export class OrdersService extends OrdersRepository {
 
   /**
    * Show order data
-   * @param { Response } res 
-   * @param { string } id 
-   * @returns 
+   * @param { Response } res
+   * @param { string } id
+   * @returns
    */
   public async showOrder(
     res: Response,
@@ -100,38 +103,44 @@ export class OrdersService extends OrdersRepository {
     try {
       // get order
       const order = await this.findById(id);
-      
+
       // return response
-      return ResponseHandler.successResponse(
-        res,
-        order,
-        "Datos de la orden."
-      );
+      return ResponseHandler.successResponse(res, order, "Datos de la orden.");
     } catch (error: any) {
       throw new Error(error.message);
     }
   }
-  
+
   /**
    * Validate payment
-   * @param { Response } res 
-   * @param { string } paymentId 
-   * @returns 
+   * @param { Response } res
+   * @param { string } paymentId
+   * @returns
    */
   public async validatePayment(res: Response, paymentId: any) {
     try {
       // get order
-      const paymentGateway = PaymentFactory.createPaymentGateway('mercadopago');
+      const paymentGateway = PaymentFactory.createPaymentGateway("mercadopago");
       const paymentData = await paymentGateway.getPaymentData(paymentId);
-      
+
       // validate order status
-      const { external_reference, status, status_detail, money_release_status } = paymentData;
+      const {
+        external_reference,
+        status,
+        status_detail,
+        money_release_status,
+      } = paymentData;
 
       // get order to update
       const order = await this.findById(external_reference as string);
 
       // cambiamos el estado de la orden.
-      if (order && status_detail === 'accredited' && money_release_status === 'released') {
+      if (
+        order &&
+        status_detail === "accredited" &&
+        money_release_status === "released"
+      ) {
+        await this.clearCacheInstances();
         if (!order.payment_data.date_approved) {
           order.payment_data = {
             date_approved: paymentData.date_approved || null,
@@ -139,16 +148,18 @@ export class OrdersService extends OrdersRepository {
             status: paymentData.status || null,
             status_detail: paymentData.status_detail || null,
             card: {
-              last_four_digits: paymentData.card ? paymentData.card.last_four_digits : null
-            }
-          }
+              last_four_digits: paymentData.card
+                ? paymentData.card.last_four_digits
+                : null,
+            },
+          };
         }
       }
       if (order && status) {
         order.status = this.statusAvailable[status];
         await this.update(external_reference, order);
       }
-      
+
       // return response
       return ResponseHandler.successResponse(
         res,
@@ -161,18 +172,30 @@ export class OrdersService extends OrdersRepository {
   }
 
   /**
-   * List order
-   * @param { Response } Response
+   * List order with Redis Cache
+   * @param { Response } res
    * @param { PaginationInterface } query
    */
   public async listOrders(res: Response, query: PaginationInterface) {
     try {
-      // validamos la data de la paginacion
+      // validate from cache
+      const redisCache = RedisImplement.getInstance();
+      const cacheKey = `orders:${JSON.stringify(query)}`;
+      const cachedData = await redisCache.getItem(cacheKey);
+      if (cachedData) {
+        return ResponseHandler.successResponse(
+          res,
+          cachedData,
+          "Listado de products (desde caché)."
+        );
+      }
+
+      // Validar datos de paginación
       const page: number = (query.page as number) || 1;
       const perPage: number = (query.perPage as number) || 7;
       const skip = (page - 1) * perPage;
 
-      // Iniciar busqueda
+      // Construir el query de búsqueda
       let queryObj: any = {};
       if (query.search) {
         const searchRegex = new RegExp(query.search as string, "i");
@@ -183,9 +206,9 @@ export class OrdersService extends OrdersRepository {
                 $regexMatch: {
                   input: { $toString: "$_id" },
                   regex: query.search,
-                  options: "i"
-                }
-              }
+                  options: "i",
+                },
+              },
             },
             { "client.dni": searchRegex },
             { "client.email": searchRegex },
@@ -195,26 +218,26 @@ export class OrdersService extends OrdersRepository {
             {
               $expr: {
                 $regexMatch: {
-                  input: { $concat: ["$client.firstName", " ", "$client.lastName"] },
+                  input: {
+                    $concat: ["$client.firstName", " ", "$client.lastName"],
+                  },
                   regex: query.search,
-                  options: "i"
-                }
-              }
+                  options: "i",
+                },
+              },
             },
-          ]
-        };        
+          ],
+        };
       }
 
-      // type products
+      // Filtrar por tipo de producto
       if (query.type) {
         queryObj.type = query.type;
       }
 
-      // validate filter
+      // Validar filtro por fecha
       if (query.filter) {
         const filter = JSON.parse(query.filter);
-        
-        // validamos si en filter vienen las fecha
         if (filter.from || filter.to) {
           queryObj.createdAt = {};
           if (filter.from) queryObj.createdAt.$gte = new Date(filter.from);
@@ -222,7 +245,7 @@ export class OrdersService extends OrdersRepository {
         }
       }
 
-      // do query
+      // Ejecutar consulta a la base de datos
       const fields = query.fields ? query.fields.split(",") : [];
       const products = await this.paginate(
         queryObj,
@@ -233,7 +256,18 @@ export class OrdersService extends OrdersRepository {
         fields
       );
 
-      // return data
+      // Guardar la respuesta en Redis por 10 minutos
+      await redisCache.setItem(
+        cacheKey,
+        {
+          orders: products.data,
+          totalItems: products.totalItems,
+          totalPages: products.totalPages,
+        },
+        600
+      );
+
+      // Retornar la respuesta
       return ResponseHandler.successResponse(
         res,
         {
@@ -250,15 +284,29 @@ export class OrdersService extends OrdersRepository {
 
   /**
    * Count order
-   * @param { Response } res 
-   * @param { string } paymentId 
-   * @returns 
+   * @param { Response } res
+   * @param { string } paymentId
+   * @returns
    */
   public async countOrders(res: Response) {
     try {
       // get count
+      const redisCache = RedisImplement.getInstance();
+
+      // validate cache
+      const loadedFromCache = await redisCache.getItem("count");
+      if (loadedFromCache) {
+        return ResponseHandler.successResponse(
+          res,
+          loadedFromCache,
+          "Total de ordenes registradas sacadas desde cache."
+        );
+      }
+
+      // from bbdd
       const count = await this.getCountOrders();
-      
+      redisCache.setItem("count", count, 600);
+
       // return response
       return ResponseHandler.successResponse(
         res,
@@ -267,6 +315,15 @@ export class OrdersService extends OrdersRepository {
       );
     } catch (error: any) {
       throw new Error(error.message);
+    }
+  }
+
+  public async clearCacheInstances() {
+    const redisCache = RedisImplement.getInstance();
+    const keys = await redisCache.getKeys("orders:*");
+    if (keys.length > 0) {
+      await redisCache.deleteKeys(keys);
+      console.log(`🗑️ Cache eliminado: ${keys.join(", ")}`);
     }
   }
 }
