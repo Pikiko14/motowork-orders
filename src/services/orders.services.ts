@@ -1,8 +1,8 @@
 import { Response } from "express";
-import { RedisImplement } from "./cache/redis.implement";
+import { RedisImplement } from "./cache/redis.services";
 import { ResponseHandler } from "../utils/responseHandler";
 import { PaymentFactory } from "./payments/payment.factory";
-import { OrderInterface } from "../interfaces/orders.interface";
+import { OrderInterface, OrdersStatusInterface } from "../interfaces/orders.interface";
 import OrdersRepository from "../repositories/orders.repository";
 import { PaginationInterface } from "../interfaces/req-ext.interface";
 export class OrdersService extends OrdersRepository {
@@ -318,12 +318,41 @@ export class OrdersService extends OrdersRepository {
     }
   }
 
+  // clear cache instances
   public async clearCacheInstances() {
     const redisCache = RedisImplement.getInstance();
     const keys = await redisCache.getKeys("orders:*");
     if (keys.length > 0) {
       await redisCache.deleteKeys(keys);
       console.log(`🗑️ Cache eliminado: ${keys.join(", ")}`);
+    }
+  }
+
+  /**
+   * Update order status
+   * @param res 
+   * @param body 
+   * @param id 
+   * @returns 
+   */
+  public async updateOrderStatus(res: Response, body: OrdersStatusInterface, id: string) {
+    try {
+      // update order
+      const order = await this.findById(id) as OrderInterface;
+      order.status = body.status;
+      const newOrder = await this.update(id, order);
+      
+      // clear cache
+      await this.clearCacheInstances();
+
+      // return response
+      return ResponseHandler.successResponse(
+        res,
+        newOrder,
+        "Estado de la orden modificado correctamente."
+      );
+    } catch (error: any) {
+      throw new Error(error.message);
     }
   }
 }

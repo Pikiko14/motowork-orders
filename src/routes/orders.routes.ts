@@ -1,7 +1,7 @@
 import { Router } from "express";
 import hostValidator from "../middlewares/hostValidator";
 import { OrdersController } from "../controllers/orders.controller";
-import { initPaymentValidator, orderIdValidator, ordersCreationValidator } from "../validators/orders.validators";
+import { initPaymentValidator, orderIdValidator, ordersCreationValidator, orderStatusValidator } from "../validators/orders.validators";
 import sessionCheck from "../middlewares/sessions.middleware";
 import perMissionMiddleware from "../middlewares/permission.middleware";
 import { PaginationValidator } from "../validators/request.validator";
@@ -71,6 +71,20 @@ router.get(
   sessionCheck,
   perMissionMiddleware('list-orders'),
   controller.countOrders
+);
+
+/**
+ * Update order
+ */
+router.put(
+  "/:id",
+  hostValidator,
+  perMissionMiddleware('update-orders'),
+  orderIdValidator,
+  orderStatusValidator,
+  sessionCheck,
+
+  controller.updateOrderStatus
 );
 
 // export router

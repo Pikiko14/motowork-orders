@@ -57,3 +57,14 @@ export interface OrderInterface {
   payment_method?: string;
   payment_data?: any;
 }
+
+export interface OrdersStatusInterface {
+  status: | "Pendiente"
+  | "Pago Completado"
+  | "Pago Cancelado"
+  | "Pago Rechazado"
+  | "En proceso de pago"
+  | "Pago en estado pendiente"
+  | "Pago en proceso"
+  | "Devolución de Fondos";
+}

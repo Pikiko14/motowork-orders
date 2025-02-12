@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import { matchedData } from "express-validator";
 import { ResponseHandler } from "../utils/responseHandler";
 import { OrdersService } from "../services/orders.services";
-import { OrderInterface } from "../interfaces/orders.interface";
+import {
+  OrderInterface,
+  OrdersStatusInterface,
+} from "../interfaces/orders.interface";
 import { PaginationInterface } from "../interfaces/req-ext.interface";
 
 export class OrdersController {
@@ -122,6 +125,22 @@ export class OrdersController {
   countOrders = async (req: Request, res: Response) => {
     try {
       return await this.service.countOrders(res);
+    } catch (error: any) {
+      ResponseHandler.handleInternalError(res, error, error.message ?? error);
+    }
+  };
+
+  /**
+   * Update order
+   * @param req Express request
+   * @param res Express responde
+   * @return Promise<void>
+   */
+  updateOrderStatus = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const body = matchedData(req) as OrdersStatusInterface;
+      return await this.service.updateOrderStatus(res, body, id);
     } catch (error: any) {
       ResponseHandler.handleInternalError(res, error, error.message ?? error);
     }

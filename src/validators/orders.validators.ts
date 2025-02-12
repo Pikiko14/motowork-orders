@@ -149,7 +149,7 @@ const initPaymentValidator = [
 const orderIdValidator = [
   check("id")
     .notEmpty()
-    .withMessage("Debe existier el id de la orden")
+    .withMessage("Debe existir el id de la orden")
     .isMongoId()
     .withMessage("Debe ser un id correcto")
     .custom(async (val: string) => {
@@ -162,4 +162,25 @@ const orderIdValidator = [
     handlerValidator(req, res, next),
 ];
 
-export { ordersCreationValidator, initPaymentValidator, orderIdValidator };
+const orderStatusValidator = [
+  check("status")
+    .notEmpty()
+    .withMessage("Debe existir el estado de la orden")
+    .custom(async (val: string) => {
+      const availableStatus = [
+        "Pago Completado",
+        "Pago en estado pendiente",
+        "En proceso de pago",
+        "Pago Rechazado",
+        "Pago Cancelado",
+        "Devolución de Fondos",
+      ];
+      if (!availableStatus.includes(val)) {
+        throw new Error(`EL estado de la orden debe ser uno de los siguientes: ${availableStatus.join(', ')}`);
+      }
+    }),
+  (req: Request, res: Response, next: NextFunction) =>
+    handlerValidator(req, res, next),
+];
+
+export { ordersCreationValidator, initPaymentValidator, orderIdValidator, orderStatusValidator };
