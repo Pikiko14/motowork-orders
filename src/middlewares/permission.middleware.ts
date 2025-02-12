@@ -17,6 +17,7 @@ const perMissionMiddleware = (scope: string) => {
           return ResponseHandler.handleDenied(res, {}, "No tienes permiso para realizar esta acción.");
         }
       } catch (e) {
+        console.log(e);
         return ResponseHandler.handleDenied(res, {}, "Error validando los permisos.");
       }
     };

@@ -79,10 +79,10 @@ router.get(
 router.put(
   "/:id",
   hostValidator,
+  sessionCheck,
   perMissionMiddleware('update-orders'),
   orderIdValidator,
   orderStatusValidator,
-  sessionCheck,
 
   controller.updateOrderStatus
 );
