@@ -41,26 +41,35 @@ export class EmailQueueService {
       );
 
       let emailData = {
-        firstName: order?.client?.firstName,
-        lastName: order?.client?.lastName,
-        _id: order?._id,
-        address: order?.client?.address,
-        total: order?.total,
-        name_vehicle: order?.vehicleDetails.name,
-        model_vehicle: order?.vehicleDetails.model,
-        image_vehicle: order?.vehicleDetails.image,
-        serviceDate: order?.serviceDate,
-        serviceTime: order?.serviceTime
-    };
+        firstName: order.client.firstName || '',
+        lastName: order.client.lastName || '',
+        _id: order._id || '',
+        address: order.client.address || '',
+        city: order.client.city || '',
+        state_shipping: order.client.state || '',
+        total: order.total || 0,
+        name_vehicle: order.vehicleDetails ? order.vehicleDetails.name : '',
+        model_vehicle: order.vehicleDetails ? order.vehicleDetails.model : '',
+        image_vehicle: order.vehicleDetails ? order.vehicleDetails.image : '',
+        serviceDate: order.serviceDate || '',
+        serviceTime: order.serviceTime || '',
+        products: order.items.map(p => ({
+          name: p.name,
+          quantity: p.quantity,
+          price: p.purchasePrice,
+          image: p.image || '' // Asegurar que siempre haya una cadena
+        })),
+        state: order.status
+      };
 
       if (typeEmail === "order" && order.type === 'Sales Order') {
         html = await fs.readFile(`${templatePath}/order.mail.html`, "utf-8");
-        subject = "¡Pedido Recibido! 📦"
+        subject = `¡Pedido Recibido #${order._id}! 📦`;
       }
 
       if (typeEmail === "order" && order.type === 'Test Drive Request') {
         html = await fs.readFile(`${templatePath}/driver.mail.html`, "utf-8");
-        subject = "¡Solicitud de manejo! 🏍️"
+        subject = "¡Solicitud de manejo! 🏍️";
       }
       // Compilar plantilla con Handlebars
       const template = Handlebars.compile(html);

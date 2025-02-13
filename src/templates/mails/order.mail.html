@@ -24,8 +24,6 @@
             padding: 20px;
             background-color: #0B0A1A;
             color: white;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
         }
         .header img {
             display: block;
@@ -82,7 +80,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img width="120px" src="https://res.cloudinary.com/dg14xloef/image/upload/v1739483548/categories/vhe9godngo17jo46risw.svg" alt="Logo motowork" title="Logo motowork" />
+            <img width="120px" src="https://i.postimg.cc/RhVRd25z/logo.png" alt="Logo motowork" title="Logo motowork" />
             <h1>Pedido recibido.</h1>
         </div>
         <div class="order-details">
@@ -90,35 +88,58 @@
             <p>Hemos recibido tu pedido y estamos procesándolo. Aquí tienes los detalles de tu compra:</p>
             <p>🛒 <strong>Número de pedido:</strong> {{_id}}</p>
             <p>📍 <strong>Dirección de entrega:</strong> {{address}}</p>
+            <p>📍 <strong>Ciudad:</strong> {{city}}</p>
+            <p>📍 <strong>Departamento:</strong> {{state_shipping}}</p>
 
             <h3>📦 Tu pedido:</h3>
             <table class="order-table">
                 <thead>
                     <tr>
+                        <th></th>
                         <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Precio</th>
+                        <th>
+                            <center>
+                                Cantidad
+                            </center>
+                        </th>
+                        <th>
+                            <center>
+                                Precio
+                            </center>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {{#each products}}
                     <tr>
+                        <th>
+                            <center>
+                                <img width="60px" src="{{this.image}}" alt="{{this.name}}">
+                            </center>
+                        </th>
                         <td>{{this.name}}</td>
-                        <td>{{this.quantity}}</td>
-                        <td>{{this.price}}</td>
+                        <td>
+                            <center>
+                                {{this.quantity}}
+                            </center>
+                        </td>
+                        <td>
+                            <center>
+                                {{this.purchasePrice}}
+                            </center>
+                        </td>
                     </tr>
                     {{/each}}
                 </tbody>
             </table>
 
             <div class="order-summary">
-                <p><strong>Subtotal:</strong> {{subtotal}}</p>
-                <p><strong>Envío:</strong> {{shippingCost}}</p>
+                <p><strong>Estado:</strong> {{state}}</p>
                 <p class="total"><strong>Total:</strong> {{total}}</p>
             </div>
         </div>
         <div class="footer">
-            <p>Consulta el estado de tu pedido en tu <a href="#">Cuenta</a> o visitando <a href="#">Mobility.com/guest</a> si realizaste el checkout como invitado.</p>
+            <p>© Motowork 2025, todos los derechos reservados.</p>
         </div>
     </div>
 </body>
