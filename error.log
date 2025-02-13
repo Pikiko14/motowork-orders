@@ -1,3 +1,0 @@
-{"error":{},"level":"error","message":"Pasarela de pago no soportada.","timestamp":"2025-02-07T20:38:23.928Z"}
-{"error":{},"level":"error","message":"Pasarela de pago no soportada.","timestamp":"2025-02-07T20:38:31.642Z"}
-{"error":{},"level":"error","message":"Pagination failed: Cast to ObjectId failed for value \"/67a791af389f91a2c7531b8a/i\" (type RegExp) at path \"_id\" for model \"orders\"","timestamp":"2025-02-12T15:57:40.731Z"}

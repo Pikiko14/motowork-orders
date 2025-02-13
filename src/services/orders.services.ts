@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { MailService } from "./mails/mails.service";
 import { RedisImplement } from "./cache/redis.services";
+import { EmailQueueService } from "../queues/mail.queue";
 import { ResponseHandler } from "../utils/responseHandler";
 import { PaymentFactory } from "./payments/payment.factory";
 import OrdersRepository from "../repositories/orders.repository";
@@ -43,10 +44,11 @@ export class OrdersService extends OrdersRepository {
       await this.clearCacheInstances();
 
       // send email
-      await this.emailService.sendEmail(
-        order.client.email,
-        `Nueva orden creada: #${order._id}`,
-        '<h3>Hola como estas...</h3>'
+      const emailQueueService = new EmailQueueService();
+      emailQueueService.addToQueue(
+       order.client.email,
+        "Orden creada correctamente",
+        "<h1>Hola, gracias por comprar con nosotros.</h1>"
       );
 
       // return response

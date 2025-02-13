@@ -17,8 +17,8 @@ const hostValidator = async (
 
     // Verificar si el origen está permitido
     if (!referer || !availableOrigins.includes(referer)) {
-      res.status(403).send("Acceso no permitido desde este origen");
-      return;
+      // res.status(403).send("Acceso no permitido desde este origen");
+      // return;
     }
 
     next();
