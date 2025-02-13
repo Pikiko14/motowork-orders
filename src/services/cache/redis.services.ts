@@ -1,5 +1,6 @@
 import Redis from "ioredis";
 import { CacheStrategy } from "../../interfaces/cache.interface";
+import configuration from "../../../configuration/configuration";
 
 export class RedisImplement implements CacheStrategy {
   private static instance: RedisImplement; // Instancia única de la clase
@@ -7,12 +8,14 @@ export class RedisImplement implements CacheStrategy {
 
   private constructor() {
     this.clientRedis = new Redis({
-      host: "127.0.0.1",
-      port: 6379,
+      host: configuration.get("REDIS_HOST"),
+      port: parseInt(configuration.get("REDIS_PORT")),
     });
 
     this.clientRedis.on("connect", () => console.log("🔗 Conectado a Redis"));
-    this.clientRedis.on("error", (err) => console.error("❌ Redis Error:", err));
+    this.clientRedis.on("error", (err) =>
+      console.error("❌ Redis Error:", err)
+    );
   }
 
   public static getInstance(): RedisImplement {
@@ -25,8 +28,8 @@ export class RedisImplement implements CacheStrategy {
   public async initClient(): Promise<void> {
     if (!this.clientRedis) {
       this.clientRedis = new Redis({
-        host: "127.0.0.1",
-        port: 6379,
+        host: configuration.get("REDIS_HOST"),
+        port: parseInt(configuration.get("REDIS_PORT")),
       });
     }
     console.log("✅ Cliente Redis inicializado");
@@ -36,7 +39,11 @@ export class RedisImplement implements CacheStrategy {
     return this.clientRedis;
   }
 
-  public async setItem(key: string, data: any, expiration = 600): Promise<boolean> {
+  public async setItem(
+    key: string,
+    data: any,
+    expiration = 600
+  ): Promise<boolean> {
     try {
       await this.clientRedis.set(key, JSON.stringify(data), "EX", expiration);
       return true;
@@ -65,9 +72,9 @@ export class RedisImplement implements CacheStrategy {
     return new Promise((resolve, reject) => {
       const stream = this.clientRedis.scanStream({
         match: pattern,
-        count: 100,
+        count: 1000,
       });
-  
+
       const keys: string[] = [];
       stream.on("data", (resultKeys) => {
         keys.push(...resultKeys);
@@ -76,7 +83,7 @@ export class RedisImplement implements CacheStrategy {
       stream.on("error", (err) => reject(err));
     });
   }
-  
+
   public async deleteKeys(keys: string[]): Promise<void> {
     if (keys.length > 0) {
       await this.clientRedis.del(keys);

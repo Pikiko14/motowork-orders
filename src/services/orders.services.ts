@@ -1,10 +1,14 @@
 import { Response } from "express";
+import { MailService } from "./mails/mails.service";
 import { RedisImplement } from "./cache/redis.services";
 import { ResponseHandler } from "../utils/responseHandler";
 import { PaymentFactory } from "./payments/payment.factory";
-import { OrderInterface, OrdersStatusInterface } from "../interfaces/orders.interface";
 import OrdersRepository from "../repositories/orders.repository";
 import { PaginationInterface } from "../interfaces/req-ext.interface";
+import {
+  OrderInterface,
+  OrdersStatusInterface,
+} from "../interfaces/orders.interface";
 export class OrdersService extends OrdersRepository {
   statusAvailable: any = {
     approved: "Pago Completado",
@@ -16,6 +20,7 @@ export class OrdersService extends OrdersRepository {
     refunded: "Devolución de Fondos",
     chargedback: "Devolución de Fondos",
   };
+  emailService = new MailService();
 
   constructor() {
     super();
@@ -36,6 +41,13 @@ export class OrdersService extends OrdersRepository {
 
       // delete keys from cache
       await this.clearCacheInstances();
+
+      // send email
+      await this.emailService.sendEmail(
+        order.client.email,
+        `Nueva orden creada: #${order._id}`,
+        '<h3>Hola como estas...</h3>'
+      );
 
       // return response
       return ResponseHandler.successResponse(
@@ -116,7 +128,7 @@ export class OrdersService extends OrdersRepository {
       // get order
       const order = await this.findById(id);
 
-      await redisCache.setItem(cacheKey, order, 300)
+      await redisCache.setItem(cacheKey, order, 300);
 
       // return response
       return ResponseHandler.successResponse(res, order, "Datos de la orden.");
@@ -308,7 +320,7 @@ export class OrdersService extends OrdersRepository {
       const redisCache = RedisImplement.getInstance();
 
       // validate cache
-      const loadedFromCache = await redisCache.getItem("count");
+      const loadedFromCache = await redisCache.getItem("orders:count");
       if (loadedFromCache) {
         return ResponseHandler.successResponse(
           res,
@@ -319,7 +331,7 @@ export class OrdersService extends OrdersRepository {
 
       // from bbdd
       const count = await this.getCountOrders();
-      redisCache.setItem("count", count, 600);
+      redisCache.setItem("orders:count", count, 600);
 
       // return response
       return ResponseHandler.successResponse(
@@ -338,24 +350,28 @@ export class OrdersService extends OrdersRepository {
     const keys = await redisCache.getKeys("orders:*");
     if (keys.length > 0) {
       await redisCache.deleteKeys(keys);
-      console.log(`🗑️ Cache eliminado: ${keys.join(", ")}`);
+      console.log(`🗑️ Cache limpiado`);
     }
   }
 
   /**
    * Update order status
-   * @param res 
-   * @param body 
-   * @param id 
-   * @returns 
+   * @param res
+   * @param body
+   * @param id
+   * @returns
    */
-  public async updateOrderStatus(res: Response, body: OrdersStatusInterface, id: string) {
+  public async updateOrderStatus(
+    res: Response,
+    body: OrdersStatusInterface,
+    id: string
+  ) {
     try {
       // update order
-      const order = await this.findById(id) as OrderInterface;
+      const order = (await this.findById(id)) as OrderInterface;
       order.status = body.status;
       const newOrder = await this.update(id, order);
-      
+
       // clear cache
       await this.clearCacheInstances();
 
