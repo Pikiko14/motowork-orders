@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #0B0A1A;
+            color: white;
+        }
+        .header img {
+            display: block;
+            margin: 0 auto 10px;
+        }
+        .header h1 {
+            font-size: 22px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        .order-details {
+            padding: 20px;
+        }
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .order-table th, .order-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .order-table th {
+            background-color: #f2f2f2;
+        }
+        .order-summary {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .total {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+        .btn {
+            display: inline-block;
+            background: #34c0a0;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img width="120px" src="https://i.postimg.cc/RhVRd25z/logo.png" alt="Logo motowork" title="Logo motowork" />
+            <h1>Prueba de manejo.</h1>
+        </div>
+        <div class="order-details">
+            <p>Hola <strong>{{firstName}} {{lastName}}</strong>,</p>
+            <p>Hemos recibido tu solicitud de prueba de manejo, nos pondremos en contacto contigo lo mas pronto posible:</p>
+            <p>🛒 <strong>Número de solicitud:</strong> {{_id}}</p>
+            <p>📅 <strong>Fecha:</strong> {{serviceDate}}</p>
+            <p>⌚ <strong>Hora:</strong> {{serviceTime}}</p>
+
+            <h3>🏍️ Tu solicitud:</h3>
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Vehiculo</th>
+                        <th>Modelo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td style="width: 60px">
+                       <center>
+                        <img width="60px" src="{{image_vehicle}}" alt="{{model_vehicle}}">
+                       </center>
+                    </td>
+                    <td>{{name_vehicle}}</td>
+                    <td>{{model_vehicle}}</td>
+                </tr>
+                </tbody>
+            </table>
+            <p>Si tienes alguna pregunta, no dudes en contactarnos por el numero: <a href="tel:+573183996249">+573183996249</a></p>
+        </div>
+        <div class="footer">
+            <p>© Motowork 2025, todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

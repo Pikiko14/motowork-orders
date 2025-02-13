@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #0B0A1A;
+            color: white;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .header img {
+            display: block;
+            margin: 0 auto 10px;
+        }
+        .header h1 {
+            font-size: 22px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        .order-details {
+            padding: 20px;
+        }
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .order-table th, .order-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .order-table th {
+            background-color: #f2f2f2;
+        }
+        .order-summary {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .total {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+        .btn {
+            display: inline-block;
+            background: #34c0a0;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img width="120px" src="https://res.cloudinary.com/dg14xloef/image/upload/v1739483548/categories/vhe9godngo17jo46risw.svg" alt="Logo motowork" title="Logo motowork" />
+            <h1>Pedido recibido.</h1>
+        </div>
+        <div class="order-details">
+            <p>Hola <strong>{{firstName}} {{lastName}}</strong>,</p>
+            <p>Hemos recibido tu pedido y estamos procesándolo. Aquí tienes los detalles de tu compra:</p>
+            <p>🛒 <strong>Número de pedido:</strong> {{_id}}</p>
+            <p>📍 <strong>Dirección de entrega:</strong> {{address}}</p>
+
+            <h3>📦 Tu pedido:</h3>
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each products}}
+                    <tr>
+                        <td>{{this.name}}</td>
+                        <td>{{this.quantity}}</td>
+                        <td>{{this.price}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+
+            <div class="order-summary">
+                <p><strong>Subtotal:</strong> {{subtotal}}</p>
+                <p><strong>Envío:</strong> {{shippingCost}}</p>
+                <p class="total"><strong>Total:</strong> {{total}}</p>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Consulta el estado de tu pedido en tu <a href="#">Cuenta</a> o visitando <a href="#">Mobility.com/guest</a> si realizaste el checkout como invitado.</p>
+        </div>
+    </div>
+</body>
+</html>

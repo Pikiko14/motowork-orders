@@ -45,11 +45,7 @@ export class OrdersService extends OrdersRepository {
 
       // send email
       const emailQueueService = new EmailQueueService();
-      emailQueueService.addToQueue(
-       order.client.email,
-        "Orden creada correctamente",
-        "<h1>Hola, gracias por comprar con nosotros.</h1>"
-      );
+      emailQueueService.addToQueue(order, 'order');
 
       // return response
       return ResponseHandler.successResponse(

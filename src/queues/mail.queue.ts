@@ -1,6 +1,10 @@
-import Bull, { Job, Queue, QueueOptions } from "bull";
+import path from "path";
+import { promises as fs } from "fs";
+import Handlebars from 'handlebars';
+import Bull, { Job, Queue } from "bull";
 import { MailService } from "../services/mails/mails.service";
-import { connectionRedis } from '../../configuration/redis';
+import { connectionRedis } from "../../configuration/redis";
+import { OrderInterface } from "../interfaces/orders.interface";
 
 export class EmailQueueService {
   private queue: Queue<{ to: string; subject: string; html: string }>;
@@ -17,22 +21,71 @@ export class EmailQueueService {
       await this.sendEmail(to, subject, html);
     });
 
-
     this.setupListeners();
   }
 
   /**
    * Agrega un correo a la cola
    */
-  public async addToQueue(to: string, subject: string, html: string): Promise<void> {
-    await this.queue.add("sendEmail", { to, subject, html });
+  public async addToQueue(
+    order: OrderInterface,
+    typeEmail = "order"
+  ): Promise<void> {
+    try {
+      // prepare html
+      let html = ``;
+      let subject = '';
+      const templatePath = path.join(
+        __dirname,
+        "../templates/mails"
+      );
+
+      let emailData = {
+        firstName: order?.client?.firstName,
+        lastName: order?.client?.lastName,
+        _id: order?._id,
+        address: order?.client?.address,
+        total: order?.total,
+        name_vehicle: order?.vehicleDetails.name,
+        model_vehicle: order?.vehicleDetails.model,
+        image_vehicle: order?.vehicleDetails.image,
+        serviceDate: order?.serviceDate,
+        serviceTime: order?.serviceTime
+    };
+
+      if (typeEmail === "order" && order.type === 'Sales Order') {
+        html = await fs.readFile(`${templatePath}/order.mail.html`, "utf-8");
+        subject = "¡Pedido Recibido! 📦"
+      }
+
+      if (typeEmail === "order" && order.type === 'Test Drive Request') {
+        html = await fs.readFile(`${templatePath}/driver.mail.html`, "utf-8");
+        subject = "¡Solicitud de manejo! 🏍️"
+      }
+      // Compilar plantilla con Handlebars
+      const template = Handlebars.compile(html);
+      html = template(emailData);
+
+      // send email procees to the queue
+      await this.queue.add("sendEmail", {
+        to: order.client.email,
+        subject,
+        html,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
    * Envía un correo con `MailService`
    */
-  private async sendEmail(to: string, subject: string, html: string): Promise<void> {
-    try {;
+  private async sendEmail(
+    to: string,
+    subject: string,
+    html: string
+  ): Promise<void> {
+    try {
       await this.mailService.sendEmail(to, subject, html);
     } catch (error) {
       console.error(`❌ Error enviando correo a ${to}:`, error);
