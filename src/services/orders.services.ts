@@ -184,6 +184,9 @@ export class OrdersService extends OrdersRepository {
         await this.update(external_reference, order);
       }
 
+      // delete keys from cache
+      await this.clearCacheInstances();
+
       // return response
       return ResponseHandler.successResponse(
         res,
