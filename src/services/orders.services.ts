@@ -84,6 +84,7 @@ export class OrdersService extends OrdersRepository {
         order.payment_method = body.payment_methods;
         order.status = "Pendiente";
         await this.update(id, order);
+        await this.clearCacheInstances();
       }
 
       // return response
