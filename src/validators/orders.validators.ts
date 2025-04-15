@@ -129,7 +129,7 @@ const initPaymentValidator = [
   check("payment_methods")
     .notEmpty()
     .withMessage("Debe existier el medio de pago")
-    .isIn(["mercadopago", "trasnferencia"])
+    .isIn(["mercadopago", "trasnferencia", "link_pago"])
     .withMessage("El medio de pago debe ser mercadopago o trasnferencia."),
   check("order_id")
     .notEmpty()
