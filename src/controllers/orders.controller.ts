@@ -145,4 +145,19 @@ export class OrdersController {
       ResponseHandler.handleInternalError(res, error, error.message ?? error);
     }
   };
+
+  /**
+   * get most sell
+   * @param req Express request
+   * @param res Express response
+   * @returns Promise<void>
+   */
+  mostSells = async (req: Request, res: Response) => {
+    try {
+      // get order
+      return await this.service.mostSells(res);
+    } catch (error: any) {
+      ResponseHandler.handleInternalError(res, error, error.message ?? error);
+    }
+  };
 }

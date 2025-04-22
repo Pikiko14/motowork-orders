@@ -87,5 +87,14 @@ router.put(
   controller.updateOrderStatus
 );
 
+/**
+ * Ger more sells
+ */
+router.get(
+  "/get/most-sells",
+  hostValidator,
+  controller.mostSells
+);
+
 // export router
 export { router };

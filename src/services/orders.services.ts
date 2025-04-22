@@ -10,6 +10,7 @@ import {
   OrderInterface,
   OrdersStatusInterface,
 } from "../interfaces/orders.interface";
+import configuration from "../../configuration/configuration";
 export class OrdersService extends OrdersRepository {
   statusAvailable: any = {
     approved: "Pago Completado",
@@ -45,7 +46,7 @@ export class OrdersService extends OrdersRepository {
 
       // send email
       const emailQueueService = new EmailQueueService();
-      emailQueueService.addToQueue(order, 'order');
+      emailQueueService.addToQueue(order, "order");
 
       // return response
       return ResponseHandler.successResponse(
@@ -382,6 +383,60 @@ export class OrdersService extends OrdersRepository {
         res,
         newOrder,
         "Estado de la orden modificado correctamente."
+      );
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  /**
+   * get most sell items
+   * @param { Response } res
+   * @returns
+   */
+  async mostSells(res: Response) {
+    try {
+      // get from cache
+      const redisCache = RedisImplement.getInstance();
+
+      const loadedFromCache = await redisCache.getItem("most-product-sells");
+      if (loadedFromCache) {
+        return ResponseHandler.successResponse(
+          res,
+          loadedFromCache,
+          "Productos mas vendidos (Desde cache)."
+        );
+      }
+
+      // most sellers
+      const mostSells: any[] = await this.mostSellsProducts();
+      const sku = mostSells.map((el) => el.sku);
+      const urlProduct = `${configuration.get('API_URL')}/api/v1/products/most-sells/from-web?products=${sku.join(',')}`;
+
+      // get product data
+      const request = await fetch(urlProduct);
+      const data = await request.json();
+      let mostSellProducts = [];
+
+      if (data && data.success) {
+        mostSellProducts = data.data;
+      }
+      
+      // guardamos en redis
+      if (mostSellProducts && mostSellProducts.length > 0 ) {
+        // Guardar la respuesta en Redis por 10 minutos
+        await redisCache.setItem(
+          "most-product-sells",
+          mostSellProducts,
+          600
+        );
+      }
+
+      // return response
+      return ResponseHandler.successResponse(
+        res,
+        mostSellProducts,
+        "Productos mas vendidos."
       );
     } catch (error: any) {
       throw new Error(error.message);

@@ -120,6 +120,45 @@ class OrdersRepository {
       totalOrders: countOrder,
     }
   }
+
+  /**
+   * Most sell
+   */
+  public async mostSellsProducts(): Promise<any[]> {
+    const topSellingProducts = await OrderModel.aggregate([
+      {
+        $match: { type: "Sales Order" },
+      },
+      {
+        $unwind: "$items",
+      },
+      {
+        $group: {
+          _id: {
+            sku: "$items.sku",
+            name: "$items.name",
+          },
+          totalSold: { $sum: "$items.quantity" },
+        },
+      },
+      {
+        $sort: { totalSold: -1 },
+      },
+      {
+        $limit: 4,
+      },
+      {
+        $project: {
+          _id: 0,
+          sku: "$_id.sku",
+          name: "$_id.name",
+          totalSold: 1,
+        },
+      },
+    ]);
+
+    return topSellingProducts;
+  }
 }
 
 export default OrdersRepository;
