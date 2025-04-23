@@ -7,7 +7,7 @@ export class MailService {
     this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
-      secure: false,
+      secure: true,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
@@ -29,7 +29,7 @@ export class MailService {
   ): Promise<void> {
     try {
       const info = await this.transporter.sendMail({
-        from: process.env.MOTOWORK_EMAIL,
+        from: '_mainaccount@motowork.co',
         to,
         subject,
         html,
