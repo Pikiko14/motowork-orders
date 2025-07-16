@@ -4,11 +4,11 @@ import { OrderInterface } from "../interfaces/orders.interface";
 const VariantSchema = new Schema({
   sku: {
     type: String,
-    required: true,
+    required: false,
   },
   attribute: {
     type: String,
-    required: true,
+    required: false,
   },
   image: {
     type: String,
